@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.yws.common.R
@@ -14,6 +15,11 @@ import com.yws.common.ui.mteacher.mine.MineFragment
 import com.yws.common.ui.mteacher.subject.SubjectFragment
 
 class MainTeacherActivity : AppCompatActivity() {
+    private val mSubjectFragment = SubjectFragment()
+    private val mExaminationFragment = ExaminationFragment()
+    private val mMineFragment = MineFragment()
+    private var mCurFragment: Fragment = mSubjectFragment
+
     companion object {
         fun startAction(context: Context) {
             val intent = Intent(context, MainTeacherActivity::class.java)
@@ -26,35 +32,37 @@ class MainTeacherActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_teacher)
+        supportFragmentManager.commit {
+            add(R.id.teacher_fragment_container, mSubjectFragment)
+            add(R.id.teacher_fragment_container, mExaminationFragment)
+            add(R.id.teacher_fragment_container, mMineFragment)
+            hide(mExaminationFragment)
+            hide(mMineFragment)
+        }
         findViewById<BottomNavigationView>(R.id.teacher_bottom_nav).apply {
             setOnItemSelectedListener {
                 when (it.itemId) {
                     R.id.tab_teacher_subject -> {
                         supportFragmentManager.commit {
-                            val fragment =
-                                supportFragmentManager.findFragmentByTag("SubjectFragment") ?: SubjectFragment()
-                            replace(R.id.teacher_fragment_container, fragment, "SubjectFragment")
-                            setReorderingAllowed(true)
-                            addToBackStack(null)
+                            hide(mCurFragment)
+                            show(mSubjectFragment)
+                            mCurFragment = mSubjectFragment
                         }
                     }
 
                     R.id.tab_teacher_examination -> {
                         supportFragmentManager.commit {
-                            val fragment =
-                                supportFragmentManager.findFragmentByTag("ExaminationFragment") ?: ExaminationFragment()
-                            replace(R.id.teacher_fragment_container, fragment, "ExaminationFragment")
-                            setReorderingAllowed(true)
-                            addToBackStack(null)
+                            hide(mCurFragment)
+                            show(mExaminationFragment)
+                            mCurFragment = mExaminationFragment
                         }
                     }
 
                     R.id.tab_teacher_mine -> {
                         supportFragmentManager.commit {
-                            val fragment = supportFragmentManager.findFragmentByTag("MineFragment") ?: MineFragment()
-                            replace(R.id.teacher_fragment_container, fragment, "MineFragment")
-                            setReorderingAllowed(true)
-                            addToBackStack(null)
+                            hide(mCurFragment)
+                            show(mMineFragment)
+                            mCurFragment = mMineFragment
                         }
                     }
                 }
